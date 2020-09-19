@@ -9,7 +9,7 @@ The utility is written in C++ to achieve the high performance required to proces
 
 The utility can be built under Linux or on Windows with [WSL](https://docs.microsoft.com/en-us/windows/wsl/about). If you have GCC 8 or later installed, then after cloning the repository execute either `test.sh/test.cmd` to build and test the program or `build.sh/build.cmd` to perform the production build - it's that simple.
 
-The deployment and usage are straightforward as well. All the work is done by one Linux program that consists of a single executable with an optional configuration file.
+Deployment and usage are straightforward as well. All the work is done by one Linux program that consists of a single executable with an optional configuration file.
 
 ## Table of Contents
 - [Functionality](#functionality)
@@ -31,7 +31,7 @@ The deployment and usage are straightforward as well. All the work is done by on
 - [License](#license)
 
 ## Functionality
-Out of the box the utility works with two Google repository files: [`epidemiology.csv`](https://storage.googleapis.com/covid19-open-data/v2/epidemiology.csv) and [`index.csv`](https://storage.googleapis.com/covid19-open-data/v2/index.csv). The former contains daily records (e.g. data rows) of COVID-19 case counts applicable to a certain geographical region denoted by the record's `index` field. The latter file contains a description for the geographical area behind each index.
+Out of the box the utility works with two Google repository files: [`epidemiology.csv`](https://storage.googleapis.com/covid19-open-data/v2/epidemiology.csv) and [`index.csv`](https://storage.googleapis.com/covid19-open-data/v2/index.csv). The former contains daily records (e.g. data rows) of COVID-19 case counts applicable to a certain geographical or administrative region denoted by the record's `index` field. The latter provides a description for the area behind each index.
 
 > The CSV field called `index` will be referred to as `geoindex`.
 
@@ -59,7 +59,7 @@ The following checks are performed on each row of data:
 If any check fails the row is rejected. The utility creates two error files (next to the output file) used to store the rejected epidemiology and index rows.
 
 ### Data Filtration
-The program can be built to work with records related to the two levels of geographical (or administrative) hierarchy only: country-wide level (L0) and state/province level (L1). This build configuration filters out records pertaining to the COVID-19 case counts that apply to the localities at the levels L3 and L4. Another build configuration works with all levels - see the [Configuration](#configuration) section.
+The utility can be built to work with records related to the two levels of geographical (or administrative) hierarchy only: country-wide level (L0) and state/province level (L1). This build configuration filters out records pertaining to the COVID-19 case counts that apply to the localities at the levels L3 and L4. Another build configuration works with all levels - see the [Configuration](#configuration) section.
 
 The following data rows are filtered:
 
