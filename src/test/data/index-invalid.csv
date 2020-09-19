@@ -1,0 +1,16 @@
+11,,,,Test Country,,,,,,,,,0
+ABC,,,,Test Country,,,,,,,,,0
+AA__BB,,,,Test Country,,,,,,,,,1
+AA,,,,,,,,,,,,,0
+AA,,,,,,Test Province,,,,,,,0
+AA_,,,,,,Test Province,,Test Locality,,,,,1
+AA,,,,Test Country,,Test Province,,,,,,,1
+AA_,,,,Test Country,,Test Province,,Test Locality,,,,,2
+AA_BB,,,,Test Country,,,,Test Locality,,,,,2
+AA,,,,Test Country,,Test Province,,,,,,,0
+AA_BB_CC,,,,Test Country,,Test Province,,,,,,,2
+AA_BB,,,,Test Country,,Test Province,,Test Locality,,,,,1
+AA,,,,XXX,,Test Province,,Test Locality,,,,,0
+AA_BB,,,,Test Country,,XX,,,,,,,1
+AA_BB_CC,,,,Test Country,,Test Province,,XX,,,,,2
+NaN,,,,Test Country,,Test Province,,Test Locality,,,,,2

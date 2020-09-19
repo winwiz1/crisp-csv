@@ -1,0 +1,16 @@
+branches: 
+  only: 
+    - master
+git: 
+  depth: 3
+dist: bionic
+sudo: true
+language: cpp
+compiler: gcc
+install: 
+  - chmod +x ./test.sh
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - sudo apt update
+  - sudo apt install gcc-8 g++-8
+  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 50 --slave /usr/bin/g++ g++ /usr/bin/g++-8
+script: ./test.sh

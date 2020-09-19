@@ -1,0 +1,2 @@
+@echo OFF
+wsl code .
