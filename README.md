@@ -35,7 +35,7 @@ Out of the box the utility works with two Google repository files: [`epidemiolog
 
 > The CSV field called `index` will be referred to as `geoindex`.
 
-The utility performs a set of checks to validate each row, identifies the rows that need to be rejected as invalid, filters the data (by skipping certain rows) and creates the output file by merging the selected CSV fields taken from both files. The output file contains the following columns:  
+The utility performs a set of checks to validate each row, identifies the rows that need to be rejected as invalid, filters the data (by skipping certain rows) and creates an output file by merging the selected CSV fields taken from both files. The output file contains the following columns:
 ```
 date, geoindex, country, state/province, locality, confirmed cases, recovered cases, deaths, aggregation level
 ```
@@ -95,7 +95,7 @@ On Debian 10 or Ubunty 20.04 the only build prerequisite is the `build-essential
    - To install the package on Debian/Ubunty run the following command:<br/>
      `sudo apt update && apt install build-essential`
 
-     >If you have an earlier Linux distribution version with older GCC installed then it might not support C++17 features. In this case you will need to install GCC 8 by following the `install` steps in the `.travis.yml` file.  The steps ensure that Travis CI VM, which comes with Ubuntu 18.04 and GCC 7, gets upgraded to GCC 8.
+     >If you have an earlier version of Linux distribution with older GCC installed then it might not support C++17 features. In this case you will need to install GCC 8 by following the `install` steps in the `.travis.yml` file.  The steps ensure that Travis CI VM, which comes with Ubuntu 18.04 and GCC 7, gets upgraded to GCC 8.
 
    - To install the package on WSL follow the steps described in this [link](https://code.visualstudio.com/docs/cpp/config-wsl#_set-up-your-linux-environment).
 
