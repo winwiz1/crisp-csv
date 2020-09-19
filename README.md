@@ -1,6 +1,8 @@
 ﻿# Crisp CSV
 This repository helps to build an ETL (Extract-Transform-Load) utility that works with CSV files. The utility applies a range of checks to the input data, merges the files and creates a sanitized, denormalized upload that could be imported into a non-SQL database as a part of an ETL process. The data validation checks are meant to ensure the integrity of the data and avoid ingestion errors triggered by the database engine.
 
+The utility can also be used to read specific CSV fields from the input data and reorder the fields.
+
 Off-the-shelf the utility works with data from the Google COVID-19 Open Data [repository](https://github.com/GoogleCloudPlatform/covid-19-open-data). However it has been designed from the outset to be easily customisable and uses templates to simplify the task of reconfiguring the program to work with selected pieces (e.g. fields) of CSV data in other projects. The details are provided under the [Customisation](#customisation) heading.
 
 The utility is written in C++ to achieve the high performance required to process large amount of data. This is especially beneficial if your ETL process needs to be recurring and bound to a certain time schedule. The specific performance metrics can be found below.
@@ -164,7 +166,9 @@ Create your custom CSV record scanner and field processor. Extend the Factory to
 Adding new `.h` or `.cpp` files and renaming the existing source files doesn't require changing the `makefile`. It requires changes if you add a subdirectory to the `src/` directory in which case the changes should reflect the actions applied in the `makefile` to the existing subdirectories, namely `config/`, `handlers/` and `test/`.
 ## Credits
 The source code includes the `json.hpp` file taken from the [JSON for Modern C++]( https://github.com/nlohmann/json) repository to implement parsing of the JSON configuration file.
+
 Tests include the file `catch.hpp`  taken from the [Catch2](https://github.com/catchorg/Catch2) test framework repository.
+
 The `makefile` utilises  several recipes mentioned in the comments.
 
 ## License
