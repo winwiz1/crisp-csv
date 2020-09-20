@@ -59,7 +59,7 @@ The following checks are performed on each row of data:
 If any check fails the row is rejected. The utility creates two error files (next to the output file) used to store the rejected epidemiology and index rows.
 
 ### Data Filtration
-The utility can be built to work with records related to the two levels of geographical (or administrative) hierarchy only: country-wide level (L0) and state/province level (L1). This build configuration filters out records pertaining to the COVID-19 case counts that apply to the localities at the levels L3 and L4. Another build configuration works with all levels - see the [Configuration](#configuration) section.
+The utility can be built to work with records related to the two levels of geographical (or administrative) hierarchy only: country-wide level (L0) and state/province level (L1). This build configuration filters out records pertaining to the COVID-19 case counts that apply to the localities at the levels L2 and L3. Another build configuration works with all levels - see the [Configuration](#configuration) section.
 
 The following data rows are filtered:
 
@@ -144,7 +144,7 @@ At run-time the utility looks for a configuration file `<executable-file-name>.c
      "filterAuData": true
     }
     ````
-    The first three keys represent the thresholds that affect the utility exit code. If the respective row counts are less than the first threshold or greater than the other two thresholds, the utility returns a non-zero exit code indicating a failure. This can be used to terminate an ETL pipeline, disable data copying from a staging environment to production, etc.
+    The first three keys represent the thresholds that affect the utility exit code. If the respective row counts are less than the first threshold or greater than the other two thresholds, the utility returns a non-zero exit code indicating a failure. This can be used to terminate an ETL pipeline, disable data copying from staging environment to production, etc.
 
     The last two keys affect filtering described in the [Data Filtration](#data-filtration) section. The `relaxIndexChecks` setting, if set to `true`, drops several geoindex checks and makes the utility accept `UA_KBP` as a valid geoindex, see [this](https://github.com/GoogleCloudPlatform/covid-19-open-data/issues/156) issue for more details.
 
