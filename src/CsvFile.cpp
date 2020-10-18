@@ -97,6 +97,7 @@ ExitCode CsvFile<DataFieldCount,ProcessorInputFieldCount,ProcessorOutputFieldCou
 
   // Loop through the CSV file
   auto incrementRowCount = [this]() { ++m_countProcessed; };
+  cout << APP_TITLE" - processing data" << endl;
 
   while (g_SIGINT == 0 && m_inStream >> rowReader)
   {
@@ -182,11 +183,13 @@ ExitCode CsvFile<DataFieldCount,ProcessorInputFieldCount,ProcessorOutputFieldCou
 
   if (g_SIGINT)
   {
+    cerr << APP_TITLE" - data processing interrupted" << endl;
     cerr << APP_TITLE" - terminating on signal, leaving incomplete output files" << endl;
     ret = ExitCode::E_SIGINT;
   }
   else
   {
+    cout << APP_TITLE" - data processing finished" << endl;
     cout << APP_TITLE" - processed " << m_countProcessed << " data rows" << endl;
 
     if (m_countRejected)

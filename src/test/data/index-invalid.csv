@@ -14,3 +14,6 @@ AA,,,,XXX,,Test Province,,Test Locality,,,,,0
 AA_BB,,,,Test Country,,XX,,,,,,,1
 AA_BB_CC,,,,Test Country,,Test Province,,XX,,,,,2
 NaN,,,,Test Country,,Test Province,,Test Locality,,,,,2
+GB_ENG_E06000058,United Kingdom,England,"Bournemouth, Christchurch and Poole,,GBR
+GB_ENG_E06000058,United Kingdom,England,Bournemouth, Christchurch and Poole",,GBR
+GB_ENG_E06000058,United Kingdom,England,"Bournemouth, " Christchurch and Poole",,GBR

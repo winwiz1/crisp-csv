@@ -4,7 +4,6 @@
 #pragma once
 
 #include <map>
-#include <sstream>
 #include <array>
 #include "utility.h"
 
@@ -29,6 +28,31 @@ private:
 
   std::map<unsigned, unsigned> m_map;
   std::array<std::wstring, FieldCount> m_data;
+  std::wistringstream m_lineStream;
+  static const std::wregex s_regex;
+
+public:
+  // Nested struct to avoid global namespace pollution
+  struct csv_error : std::runtime_error
+  {
+    explicit csv_error(const std::wstring& strData) : std::runtime_error(s_strWhat), m_strData(strData)
+    {
+    }
+
+    explicit csv_error(const std::wstring&& strData) : std::runtime_error(s_strWhat), m_strData(move(strData))
+    {
+    }
+
+    std::wstring data() const
+    {
+      return m_strData;
+    }
+
+  protected:
+    const std::wstring m_strData;             // string returned by data()
+    static const std::string s_strWhat;       // string returned by what()
+  };
+
 };
 
 template <std::size_t FieldCount>

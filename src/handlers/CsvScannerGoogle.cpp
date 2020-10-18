@@ -6,8 +6,8 @@
 
 using namespace std;
 
-const wregex CsvScannerGoogle::m_regexDate{L"^\\d{4}-\\d{2}-\\d{2}$"};
-const wregex CsvScannerGoogle::m_regexUkNuts{L"^GB_UK[A-Z]$"};
+const wregex CsvScannerGoogle::s_regexDate{L"^\\d{4}-\\d{2}-\\d{2}$"};
+const wregex CsvScannerGoogle::s_regexUkNuts{L"^GB_UK[A-Z]$"};
 
 CsvScannerGoogle::CsvScannerGoogle(unsigned maxIndex) : CsvScanner(maxIndex)
 {
@@ -62,14 +62,14 @@ CsvScanner::E_RESULT CsvScannerGoogle::scan_internal(CsvScanner::Callback& callb
     ++m_countFiltered;
     ret = E_FILTER;
   }
-  else if (filterUkNuts && regex_match(callback(1).c_str(), CsvScannerGoogle::m_regexUkNuts))
+  else if (filterUkNuts && regex_match(callback(1).c_str(), CsvScannerGoogle::s_regexUkNuts))
   {
     // Filter out UK NUTS regions otherwise 'calculated total' figures
     // get distorted
     ++m_countFiltered;
     ret = E_FILTER;
   }
-  else if (!regex_match(callback(0).c_str(), CsvScannerGoogle::m_regexDate))
+  else if (!regex_match(callback(0).c_str(), CsvScannerGoogle::s_regexDate))
   {
     // Reject rows with invalid date
     ++m_countRejected;

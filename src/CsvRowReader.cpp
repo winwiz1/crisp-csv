@@ -1,9 +1,14 @@
 #include <cassert>
-#include <iomanip>
 #include "config/BuildConfig.h"
 #include "CsvRowReader.h"
 
 using namespace std;
+
+template <size_t FieldCount>
+const string CsvRowReader<FieldCount>::csv_error::s_strWhat{"Incorrectly quoted CSV field"};
+
+template <size_t FieldCount>
+const wregex CsvRowReader<FieldCount>::s_regex{L"^\"[^\"]*?(?:\"\")?[^\"]*?(?:\"\")?[^\"]*?\"(?:,|$)"};
 
 template <size_t FieldCount>
 CsvRowReader<FieldCount>::CsvRowReader(const array<unsigned, FieldCount>& indices)
@@ -19,6 +24,9 @@ CsvRowReader<FieldCount>::CsvRowReader(const array<unsigned, FieldCount>& indice
   {
     m_map.emplace(ind, ordinal++);
   }
+
+  locale loc("C.UTF-8");
+  m_lineStream.imbue(loc);
 }
 
 template <size_t FieldCount>
@@ -40,40 +48,61 @@ unsigned CsvRowReader<FieldCount>::get_largest_index() const
 template <size_t FieldCount>
 void CsvRowReader<FieldCount>::readNextRow(wistream& inStream)
 {
-  wstring line;
-  getline(inStream, line);
-  wstringstream lineStream(move(line));
+  wstring wstr;
+  std::getline(inStream, wstr);
 
-  wstring cell;
-  unsigned currentField = 0;
+  m_lineStream.str(move(wstr));
+  m_lineStream.clear();
+  m_lineStream.seekg(0);
+
+  wstring currentField;
+  unsigned currentFieldIndex = 0;
   unsigned largestIndex = get_largest_index();
   clear();
 
-  while (lineStream >> ws)
+  while (m_lineStream >> ws)
   {
-    if (currentField > largestIndex)
+    if (currentFieldIndex > largestIndex)
       return;
 
-    if (lineStream.peek() == L'"')
+    bool bQuoted = m_lineStream.peek() == L'"';
+
+    if (bQuoted)
     {
-      lineStream >> quoted(cell);
-      wstring strRemove;
-      // remove the characters between closing double quote and comma
-      getline(lineStream, strRemove, L',');
+      const size_t quoteStart = m_lineStream.tellg();
+      const wstring lineRemainder = m_lineStream.str().substr(quoteStart);
+
+      wsmatch wsm;
+      bool bMatch = regex_search(lineRemainder, wsm, s_regex);
+
+      if (!bMatch)
+      {
+        throw csv_error(m_lineStream.str());
+      }
+
+      currentField = wsm.str();
+      auto len = currentField.length();
+
+      if (currentField.back() == L',')
+      {
+        currentField.pop_back();
+      }
+
+      m_lineStream.seekg(quoteStart + len);
     }
     else
     {
-      getline(lineStream, cell, L',');
+      std::getline(m_lineStream, currentField, L',');
     }
 
-    typename decltype(m_map)::const_iterator it = m_map.find(currentField);
+    typename decltype(m_map)::const_iterator it = m_map.find(currentFieldIndex);
 
     if (it != m_map.end())
     {
-      store_data(it->second, move(cell));
+      store_data(it->second, move(currentField));
     }
 
-    ++currentField;
+    ++currentFieldIndex;
   }
 }
 
@@ -85,7 +114,7 @@ void CsvRowReader<FieldCount>::store_data(unsigned ind, wstring&& data)
     utility::throw_exception<out_of_range>("too many fields to extract");
   }
 
-  m_data[ind] = data;
+  m_data[ind] = move(data);
 }
 
 template class CsvRowReader<CsvFieldCounts::s_inputGoogle>;

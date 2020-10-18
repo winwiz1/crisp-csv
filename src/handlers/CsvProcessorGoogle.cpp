@@ -1,5 +1,6 @@
 #include <cassert>
 #include <thread>
+#include <codecvt>
 #include "../main.h"
 #include "../CsvRowReader.h"
 #include "../iterator.h"
@@ -30,7 +31,8 @@ CsvProcessorGoogle<InputFieldCount, OutputFieldCount>::CsvProcessorGoogle(const 
   m_rejectStream.open(rejectFile.c_str(), ios::binary | ios::trunc);
 
   locale loc("C.UTF-8");
-  m_inStream.imbue(loc);
+  const locale utf8_loc = locale(std::locale(), new std::codecvt_utf8<wchar_t>);
+  m_inStream.imbue(utf8_loc);
   m_rejectStream.imbue(loc);
 
   if (!check_streams())
@@ -71,9 +73,24 @@ bool CsvProcessorGoogle<InputFieldCount, OutputFieldCount>::build_dictionary()
       m_rejectStream << L'\n';
   };
 
-  while (g_SIGINT == 0 && m_inStream >> rowReader)
+  cout << APP_TITLE" - processing index" << endl;
+
+  while (g_SIGINT == 0)
   {
+    using csv_error = typename CsvRowReader<InputFieldCount>::csv_error;
     utility::ScopedAction sa(incrementRowCount);
+
+    try
+    {
+      if (!(m_inStream >> rowReader))
+        break;
+    }
+    catch (const csv_error& ex)
+    {
+      ++m_countRejected;
+      m_rejectStream << ex.data() << L'\n';
+      continue;
+    }
 
     const auto& aggLevel = rowReader[m_indices.back()];
     unsigned long level = 0L;
@@ -182,6 +199,16 @@ bool CsvProcessorGoogle<InputFieldCount, OutputFieldCount>::build_dictionary()
     utility::throw_exception<runtime_error>("I/O error during index processing");
   }
 
+  if (g_SIGINT)
+  {
+     cerr << APP_TITLE" - index processing has been interrupted and is incomplete" << endl;
+  }
+  else
+  {
+    cout << APP_TITLE" - index processing finished" << endl;
+    cout << APP_TITLE" - processed " << rowCount << " index rows" << endl;
+  }
+
   return g_SIGINT? false: true;
 }
 
@@ -217,25 +244,9 @@ auto CsvProcessorGoogle<InputFieldCount, OutputFieldCount>::process_internal(con
     const tuple<wstring,wstring,wstring,unsigned long>& tpl = it -> second;
     const auto& [country, state, locality, level] = tpl;
     const auto aggLevel = to_wstring(level);
-    typename Base::OutputFields ret{wField, country, state, quoteLocality(locality), aggLevel};
+    typename Base::OutputFields ret{wField, country, state, locality, aggLevel};
     return ret;
   }
-}
-
-template <
-  size_t InputFieldCount,
-  size_t OutputFieldCount>
-std::wstring CsvProcessorGoogle<InputFieldCount, OutputFieldCount>::quoteLocality(const std::wstring& str) const
-{
-  if (str.find_first_of(L',') == wstring::npos)
-  {
-    return str;
-  }
-
-  wstring ret(L"\"");
-  ret += str;
-  ret.push_back(L'\"');
-  return ret;
 }
 
 template class CsvProcessorGoogle<

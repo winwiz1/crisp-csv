@@ -7,7 +7,7 @@ MKDIR_P := mkdir -p
 TEST_MONIKER_SRC := $(SOURCE_DIR)/test/moniker.test.txt
 TEST_MONIKER_OBJ := $(BUILD_TEST_DIR)/moniker.test.o
 TEST_MONIKER_EMBED := objcopy
-CSV_VERSION := 1.1.2
+CSV_VERSION := 1.1.3
 
 ifdef CSV_TEST
   SRCS := $(shell find ./${SOURCE_DIR} \( -type f -a -name *.cpp -o -type f -a -name *.c \) -print )

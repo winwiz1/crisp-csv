@@ -52,13 +52,13 @@ TEST_CASE( "Integration test - invalid data", "[integration]" )
 
   if constexpr (g_skipLocalitiesBelowStateOrProvince == true)
   {
-    CHECK( rejectedIndexRows == 13 );
+    CHECK( rejectedIndexRows == 16 );
     CHECK( rejectedDataRows == 2 );
     CHECK( processedDataRows == 3 );
   }
   else
   {
-    CHECK( rejectedIndexRows == 15 );
+    CHECK( rejectedIndexRows == 18 );
     CHECK( rejectedDataRows == 3 );
     CHECK( processedDataRows == 3 );
   }

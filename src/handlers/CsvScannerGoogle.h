@@ -18,7 +18,7 @@ private:
   CsvScanner::E_RESULT scan_internal(CsvScanner::Callback& callback) override;
 
   // Regex to check dates
-  static const std::wregex m_regexDate;
+  static const std::wregex s_regexDate;
   // Regex to find UK NUTS regions
-  static const std::wregex m_regexUkNuts;
+  static const std::wregex s_regexUkNuts;
 };

@@ -40,7 +40,6 @@ protected:
   using Base::m_countFiltered;
   bool check_streams() const;
   bool build_dictionary() noexcept(false);
-  std::wstring quoteLocality(const std::wstring&) const;
 
   LookupMap m_map;
   std::wifstream m_inStream;

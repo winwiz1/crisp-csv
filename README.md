@@ -55,6 +55,7 @@ The following checks are performed on each row of data:
    -  Verify the geographical/administrative hierarchy of the `geoindex` is consistent with the value contained in the `aggregation_level` field.
     - Perform a range of checks to ensure the record is structurally sound. It includes checking the record has `country_name` data followed by checking it has state/province (e.g. `subregion1_name`) data if it must be present for this particular geoindex or doesn’t have it in case this data must be missing for a country-wide geoindex. Similar present-or-missing checks for the locality data, e.g. both `subregion2_name` and `locality_name` fields which must be either present or missing depending on the `aggregation_level` value.
     - Check that each `xxx_name` field mentioned above has length no less than the minimal length applicable to this particular field.
+    - Starting with the version 1.1.3 of the utility, examine quoted fields to ensure the quoting is done properly and the quote characters inside fields (if any) are correctly escaped.
 
 If any check fails the row is rejected. The utility creates two error files (next to the output file) used to store the rejected epidemiology and index rows.
 
@@ -76,7 +77,7 @@ The counts of the filtered rows are included into the summary printed out when t
 ## Performance
 On Google Cloud Platform's `f1-micro` VM  the utility running inside a Docker container processes ~2 mil epidemiology rows with 18000  index rows in 15 seconds producing 140 MB output file and generating the following summary upon exit:
 ```
-crisp-csv - version 1.1.5
+crisp-csv - version 1.1.2
 crisp-csv - processed 2164142 data rows
 crisp-csv - rejected 266 data rows due to index processing failure
 crisp-csv - rejected 1 data row
@@ -118,11 +119,11 @@ The repository is integrated with [travis-ci.com](https://travis-ci.com/) for Co
 
 ## Usage
 ### Data Location
-At run-time the production build of the utility requires a readable and writeable subdirectory `csv/` to exist in the directory that contains the executable. It will look for the `epidemiology.csv`.and `index.csv` files in this subdirectory. To satisfy this requirement for the cloned repository download the [`epidemiology.csv`](https://storage.googleapis.com/covid19-open-data/v2/epidemiology.csv) and [`index.csv`](https://storage.googleapis.com/covid19-open-data/v2/index.csv) files into the `crisp-csv/build/csv/` directory.
+At run-time the production build of the utility requires a readable and writeable subdirectory `csv/` to exist in the directory that contains the executable. It will look for the `epidemiology.csv` and `index.csv` files in the subdirectory. To satisfy this requirement for the cloned repository download the [`epidemiology.csv`](https://storage.googleapis.com/covid19-open-data/v2/epidemiology.csv) and [`index.csv`](https://storage.googleapis.com/covid19-open-data/v2/index.csv) files into the `crisp-csv/build/csv/` directory.
 ### Running the Utility
 - On Linux execute: `./run.sh`
-- On Windows execute: `run.cmd`
-    The utility will run in WSL.
+- On Windows execute: `run.cmd`<br/>
+The utility will run in WSL.
  - If using VS Code (started by `ide.cmd`), type `build/crisp-csv` in the Terminal window.
 
 The output file and the two error files with rejected epidemiology and index records will be created in the `csv/` subdirectory. Already existing files will be overwritten.
