@@ -57,5 +57,5 @@ protected:
   unsigned m_countRejected;
   unsigned m_countRejectedIndex;
 
-  static const int s_yieldFrequency = 100;
+  static const int s_yieldFrequency = 1000;
 };
