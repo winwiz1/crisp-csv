@@ -41,6 +41,8 @@ date, geoindex, country, state/province, locality, confirmed cases, recovered ca
 ```
 Before exiting the utility prints out a summary with the counts of rejected and filtered rows. Pressing Ctrl+C terminates execution, the utility displays a warning about incomplete output files and exits with non-zero exit code.
 
+> The output file (produced by a containerised instance of the utility deployed in the cloud) is imported into a database that powers [virusquery.com](https://virusquery.com).
+
 ### Data Validation
 The following checks are performed on each row of data:
 
