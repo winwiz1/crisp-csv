@@ -6,7 +6,7 @@
 
 using namespace std;
 
-const wregex CsvScannerGoogle::s_regexDate{L"^\\d{4}-\\d{2}-\\d{2}$"};
+const wregex CsvScannerGoogle::s_regexDate{L"^20[1-2][0-9]-\\d{2}-\\d{2}$"};
 const wregex CsvScannerGoogle::s_regexUkNuts{L"^GB_UK[A-Z]$"};
 
 CsvScannerGoogle::CsvScannerGoogle(unsigned maxIndex) : CsvScanner(maxIndex)
