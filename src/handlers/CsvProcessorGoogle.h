@@ -8,6 +8,7 @@
 #include <fstream>
 #include <unordered_map>
 #include <type_traits>
+#include <set>
 
 #include "../config/BuildConfig.h"
 #include "CsvProcessor.h"
@@ -49,6 +50,8 @@ protected:
   static const unsigned s_minCountryNameLen = 4;
   static const unsigned s_minStateNameLen = 3;
   static const unsigned s_minLocalityNameLen = 3;
+  // set of localities that have names shorter than the above const
+  static const std::set<std::wstring> s_shortLocalities;
   
 private:
   typename Base::OutputFields process_internal(const std::wstring& field) const noexcept(false) override;

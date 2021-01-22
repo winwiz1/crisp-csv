@@ -13,6 +13,12 @@ using namespace std;
 template <
   size_t InputFieldCount,
   size_t OutputFieldCount>
+const set<wstring>
+CsvProcessorGoogle<InputFieldCount, OutputFieldCount>::s_shortLocalities{ L"Bo" };
+
+template <
+  size_t InputFieldCount,
+  size_t OutputFieldCount>
 CsvProcessorGoogle<InputFieldCount, OutputFieldCount>::CsvProcessorGoogle(const std::string& inFile, typename Base::InputFields&& indices) : 
   Base(move(indices))
 {
@@ -67,8 +73,53 @@ bool CsvProcessorGoogle<InputFieldCount, OutputFieldCount>::build_dictionary()
   CsvRowReader<InputFieldCount> rowReader(m_indices);
 
   auto incrementRowCount = [&rowCount]() { ++rowCount; };
-  auto saveRejectedRow = [this, &rowReader]() {
+
+  typedef enum {
+                  E_UNSPECIFIED,
+                  E_REPETITION,
+                  E_AGG_LEVEL,
+                  E_REGEX,
+                  E_MISMATCH,
+                  E_DATA,
+                  E_LENGTH,
+                  E_LOCALITY,
+                  E_LOCALITY_LENGTH
+                } E_REJECTION_REASON;
+
+  auto saveRejectedRow = [this, &rowReader](E_REJECTION_REASON reason = E_UNSPECIFIED) {
       const auto& row = rowReader.getReadonlyRow();
+      switch (reason)
+      {
+        case E_REPETITION:
+          m_rejectStream << L"Repetition: ";
+          break;
+        case E_AGG_LEVEL:
+          m_rejectStream << L"Invalid aggregation level: ";
+          break;
+        case E_REGEX:
+          m_rejectStream << L"Invalid index literal: ";
+          break;
+        case E_MISMATCH:
+          m_rejectStream << L"Mismatch between aggregation level and index literal: ";
+          break;
+        case E_DATA:
+          m_rejectStream << L"State/province data is inconsistent with index literal: ";
+          break;
+        case E_LENGTH:
+          m_rejectStream << L"Invalid country/state/province length: ";
+          break;
+        case E_LOCALITY:
+          m_rejectStream << L"Locality (subregion2_name and/or locality_name) data is inconsistent with index literal: ";
+          break;
+        case E_LOCALITY_LENGTH:
+          m_rejectStream << L"Locality (subregion2_name and/or locality_name) data has invalid length: ";
+          break;
+        case E_UNSPECIFIED:
+          break;
+        default:
+          m_rejectStream << L"Unexpected rejection reason: ";
+          break;
+      };
       copy(row.cbegin(), row.cend(), ostream_custom_iterator<wstring>(m_rejectStream, L","));
       m_rejectStream << L'\n';
   };
@@ -88,7 +139,7 @@ bool CsvProcessorGoogle<InputFieldCount, OutputFieldCount>::build_dictionary()
     catch (const csv_error& ex)
     {
       ++m_countRejected;
-      m_rejectStream << ex.data() << L'\n';
+      m_rejectStream << L"Invalid CSV data: " << ex.data() << L'\n';
       continue;
     }
 
@@ -101,7 +152,7 @@ bool CsvProcessorGoogle<InputFieldCount, OutputFieldCount>::build_dictionary()
     catch (const exception&)
     {
       ++m_countRejected;
-      saveRejectedRow();
+      saveRejectedRow(E_AGG_LEVEL);
       continue;
     }
 
@@ -110,7 +161,7 @@ bool CsvProcessorGoogle<InputFieldCount, OutputFieldCount>::build_dictionary()
     if (bool bMatch = regex_match(index, mr, utility::g_regexIndex); !bMatch)
     {
       ++m_countRejected;
-      saveRejectedRow();
+      saveRejectedRow(E_REGEX);
       continue;
     }
 
@@ -122,7 +173,7 @@ bool CsvProcessorGoogle<InputFieldCount, OutputFieldCount>::build_dictionary()
         (level >= 2L && (!mr[1].matched || (!mr[2].matched && !relaxIndexChecks))))
     {
       ++m_countRejected;
-      saveRejectedRow();
+      saveRejectedRow(E_MISMATCH);
       continue;
     }
 
@@ -134,7 +185,7 @@ bool CsvProcessorGoogle<InputFieldCount, OutputFieldCount>::build_dictionary()
       // Reject rows with state/province data and index asserting absense of this data
       // Reject rows with missing state/province data and index asserting presense of this data
       ++m_countRejected;
-      saveRejectedRow();
+      saveRejectedRow(E_DATA);
       continue;     
     }
 
@@ -142,7 +193,7 @@ bool CsvProcessorGoogle<InputFieldCount, OutputFieldCount>::build_dictionary()
         (!stateName.empty() && stateName.length() < s_minStateNameLen))
     {
       ++m_countRejected;
-      saveRejectedRow();
+      saveRejectedRow(E_LENGTH);
       continue;
     }
 
@@ -154,7 +205,14 @@ bool CsvProcessorGoogle<InputFieldCount, OutputFieldCount>::build_dictionary()
       }
       else
       {
-        m_map.emplace(make_pair(index, make_tuple(countryName, stateName)));
+        const auto& outcome = m_map.emplace(make_pair(index, make_tuple(countryName, stateName)));
+
+        if (!outcome.second)
+        {
+          ++m_countRejected;
+          saveRejectedRow(E_REPETITION);
+          continue;
+        }
       }
 
       continue;
@@ -173,18 +231,30 @@ bool CsvProcessorGoogle<InputFieldCount, OutputFieldCount>::build_dictionary()
         // Reject rows with missing locality data and index asserting presense of this data
         // Reject rows with inconsistent locality data
         ++m_countRejected;
-        saveRejectedRow();
+        saveRejectedRow(E_LOCALITY);
         continue;
       }
 
       if (!localityName.empty() && localityName.length() < s_minLocalityNameLen)
       {
-        ++m_countRejected;
-        saveRejectedRow();
-        continue;
+        const bool bFound = s_shortLocalities.find(localityName) != s_shortLocalities.end();
+
+        if (!bFound)
+        {
+          ++m_countRejected;
+          saveRejectedRow(E_LOCALITY_LENGTH);
+          continue;
+        }
       }
 
-      m_map.emplace(make_pair(index, make_tuple(countryName, stateName, localityName, level)));
+      const auto& outcome = m_map.emplace(make_pair(index, make_tuple(countryName, stateName, localityName, level)));
+
+      if (!outcome.second)
+      {
+        ++m_countRejected;
+        saveRejectedRow(E_REPETITION);
+        continue;
+      }
     }
 
     if (rowCount % s_yieldFrequency == 0)

@@ -58,7 +58,7 @@ TEST_CASE( "Integration test - invalid data", "[integration]" )
   }
   else
   {
-    CHECK( rejectedIndexRows == 18 );
+    CHECK( rejectedIndexRows == 19 );
     CHECK( rejectedDataRows == 3 );
     CHECK( processedDataRows == 3 );
   }
